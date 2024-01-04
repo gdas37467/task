@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/binbag', {
+mongoose.connect('mongodb+srv://gdas37467:qjI640ppwaVTuOox@binbag.nwsxnhl.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
