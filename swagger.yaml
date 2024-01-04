@@ -57,6 +57,7 @@ components:
         raisedBy:
           type: string
           description: Employee's mongodb object id
+          example: "5f551fca0c4ae58a080d3601"
         remarks:
           type: string
           description: Additional remarks for the reimbursement request
