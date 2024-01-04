@@ -4,10 +4,16 @@ const {User, Reimbursement} = require("./models")
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const z  = require("zod");
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 
 const app = express()
 app.use(express.json())
 
+
+
+const swaggerDocument = YAML.load('./swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //to be stored in .env file
 const jwtPass = "xy4hs#hjsaI8sbklailJHGa"
@@ -37,19 +43,24 @@ const reimbursementValidationSchema = z.object({
 
 
 
-
-
-
 //middlewares to authenticate token and check user's role
 const authenticateToken = (req, res, next) => {
-  const token = req.header('Authorization');
-
+  let token = req.header('Authorization');
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized: Missing token' });
   }
+  
+  //This part is for swagger, as it sends token as 'Bearer xxxxxxxxxxxxx'
+  if (token.includes(" ")){
+    token = token.split(" ")[1]
+  }
+  console.log(token)
+
+  
 
   jwt.verify(token, jwtPass, (err, user) => {
     if (err) {
+      console.log(err)
       return res.status(403).json({ error: 'Forbidden: Invalid token' });
     }
 
@@ -104,7 +115,6 @@ app.post('/register', async (req, res) => {
 });
 
 
-//login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -205,10 +215,11 @@ app.get('/admin/requests/filter',authenticateToken,checkUserRole("admin"),async 
 app.patch('/admin/requests/:id',authenticateToken,checkUserRole("admin"), async (req, res) => {
   const {id } = req.params;
   const { status } = req.body;
-  reimbursementValidationSchema.pick({ status: true }).parse({ status });
+  
   console.log(id)
 
   try {
+    reimbursementValidationSchema.pick({ status: true }).parse({ status });
     const reimbursement = await Reimbursement.findByIdAndUpdate({_id:id}, { status });
 
     if (!reimbursement) {
