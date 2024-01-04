@@ -9,11 +9,9 @@ const YAML = require('yamljs');
 
 const app = express()
 app.use(express.json())
-
-
-
 const swaggerDocument = YAML.load('./swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 //to be stored in .env file
 const jwtPass = "xy4hs#hjsaI8sbklailJHGa"
@@ -50,7 +48,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized: Missing token' });
   }
   
-  //This part is for swagger, as it sends token as 'Bearer xxxxxxxxxxxxx'
+  //This part is for swagger, as swagger sends authorization token as 'Bearer xxxxxxxxxxxxx'
   if (token.includes(" ")){
     token = token.split(" ")[1]
   }
@@ -114,7 +112,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
+//login
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -140,6 +138,8 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+
 //logout
 app.post('/logout', (req, res) => {
   res.status(200).json({ message: 'Logout successful' });
